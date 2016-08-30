@@ -32,6 +32,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -353,7 +354,7 @@ public class NavigationActivity extends BaseActivity
                     || sActualFragments.get(mSelection).getClass() == SettingsFragment.class) {
                 if (mExit) {
                     mExit = false;
-                    super.onBackPressed();
+                    exit_app();
                 } else {
                     Utils.toast(R.string.press_back_again_exit, this);
                     mExit = true;
@@ -366,6 +367,22 @@ public class NavigationActivity extends BaseActivity
                 }
             }
         }
+    }
+
+    public void exit_app() {
+        new AlertDialog.Builder(this)
+                .setIcon(R.drawable.warning_icon)
+                .setTitle("Exit?")
+                .setMessage("Are you sure you want to exit Kernel Adiutor?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 
     @Override
