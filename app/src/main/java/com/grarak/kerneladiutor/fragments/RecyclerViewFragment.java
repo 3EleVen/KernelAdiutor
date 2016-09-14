@@ -138,8 +138,11 @@ public abstract class RecyclerViewFragment extends BaseFragment {
         mTopFab = (FloatingActionButton) mRootView.findViewById(R.id.top_fab);
         mBottomFab = (FloatingActionButton) mRootView.findViewById(R.id.bottom_fab);
 
-        mScroller = new Scroller();
         mRecyclerView.clearOnScrollListeners();
+        if (showViewPager() && !hideBanner()) {
+            mScroller = new Scroller();
+            mRecyclerView.addOnScrollListener(mScroller);
+        }
         mRecyclerView.setAdapter(mRecyclerViewAdapter == null ? mRecyclerViewAdapter
                 = new RecyclerViewAdapter(mItems, new RecyclerViewAdapter.OnViewChangedListener() {
             @Override
@@ -228,6 +231,13 @@ public abstract class RecyclerViewFragment extends BaseFragment {
                     }
                     hideProgress();
                     postInit();
+                    mRecyclerView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mRecyclerView.scrollToPosition(0);
+                            mLayoutManager.scrollToPosition(0);
+                        }
+                    });
                     mLoader = null;
                 }
             };
@@ -237,6 +247,7 @@ public abstract class RecyclerViewFragment extends BaseFragment {
             init();
             hideProgress();
             postInit();
+            adjustScrollPosition();
         }
 
         return mRootView;
@@ -250,7 +261,6 @@ public abstract class RecyclerViewFragment extends BaseFragment {
                     mViewPagerFragments));
             mCirclePageIndicator.setViewPager(mViewPager);
 
-            mRecyclerView.addOnScrollListener(mScroller);
             setAppBarLayoutAlpha(0);
             adjustScrollPosition();
         } else {
@@ -272,13 +282,12 @@ public abstract class RecyclerViewFragment extends BaseFragment {
     }
 
     protected void postInit() {
-        if (showViewPager() && !hideBanner()) {
-            adjustScrollPosition();
-        }
     }
 
     protected void adjustScrollPosition() {
-        mScroller.onScrolled(mRecyclerView, 0, 0);
+        if (mScroller != null) {
+            mScroller.onScrolled(mRecyclerView, 0, 0);
+        }
     }
 
     protected abstract void addItems(List<RecyclerViewItem> items);
@@ -541,7 +550,7 @@ public abstract class RecyclerViewFragment extends BaseFragment {
         if (showBottomFab()) {
             mBottomFab.show();
         }
-        mScroller.onScrolled(mRecyclerView, 0, 0);
+        adjustScrollPosition();
     }
 
     protected boolean isForeground() {
